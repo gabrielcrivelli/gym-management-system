@@ -1,0 +1,21 @@
+name: Build Check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: 'postgresql://neondb_owner:npg_2ZDQhH6RkMnC@ep-dawn-base-acc2p1re-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require'
+      DIRECT_URL: 'postgresql://neondb_owner:npg_2ZDQhH6RkMnC@ep-dawn-base-acc2p1re.sa-east-1.aws.neon.tech/neondb?sslmode=require'
+      NEXTAUTH_SECRET: 'gym-management-system-secret-key-very-long-random-string-2024'
+      NEXTAUTH_URL: 'http://localhost:3000'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --legacy-peer-deps
+      - run: npm run build
