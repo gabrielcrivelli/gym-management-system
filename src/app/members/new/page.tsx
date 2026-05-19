@@ -7,11 +7,9 @@ export default function NewMemberPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: ''
-  })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', address: '' })
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
@@ -41,7 +39,7 @@ export default function NewMemberPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => router.push('/members')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 transition">
+          <button onClick={() => router.push('/members')} className="flex items-center gap-2 text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 transition">
             <ArrowLeft className="w-4 h-4" /> Volver
           </button>
           <h1 className="text-2xl font-bold text-gray-900">Nuevo Miembro</h1>
@@ -50,25 +48,24 @@ export default function NewMemberPage() {
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
           {error && <p className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-              <input name="firstName" required value={form.firstName} onChange={handleChange} placeholder="Juan" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Apellido *</label>
-              <input name="lastName" required value={form.lastName} onChange={handleChange} placeholder="Pérez" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
+            <input name="name" required value={form.name} onChange={handleChange} placeholder="Juan Pérez" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input name="email" type="email" required value={form.email} onChange={handleChange} placeholder="juan@email.com" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="juan@email.com" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
             <input name="phone" value={form.phone} onChange={handleChange} placeholder="+54 11 1234-5678" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <input name="address" value={form.address} onChange={handleChange} placeholder="Av. Corrientes 1234" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
