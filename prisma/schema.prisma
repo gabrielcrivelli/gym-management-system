@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -27,15 +27,15 @@ enum Role {
 }
 
 model Member {
-  id             String          @id @default(cuid())
+  id             String         @id @default(cuid())
   name           String
-  email          String?         @unique
+  email          String?        @unique
   phone          String?
   address        String?
   birthDate      DateTime?
-  active         Boolean         @default(true)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  active         Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   memberships    Membership[]
   attendance     Attendance[]
   payments       Payment[]
@@ -46,15 +46,15 @@ model Member {
 }
 
 model Plan {
-  id           String       @id @default(cuid())
-  name         String       @unique
-  description  String?
-  price        Float
-  duration     Int
-  active       Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  memberships  Membership[]
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  price       Float
+  duration    Int
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
 
   @@map("plans")
 }
@@ -91,6 +91,7 @@ model Payment {
   status       PaymentStatus @default(PENDING)
   notes        String?
   paidAt       DateTime?
+  nextDueDate  DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   member       Member?       @relation(fields: [memberId], references: [id])
@@ -125,8 +126,10 @@ model Notification {
   memberId    String
   type        NotificationType
   channel     NotificationChannel
+  title       String?
   message     String
   scheduledAt DateTime?
+  dueDate     DateTime?
   sentAt      DateTime?
   status      NotificationStatus  @default(PENDING)
   createdAt   DateTime            @default(now())
@@ -158,6 +161,39 @@ enum NotificationStatus {
   CANCELLED
 }
 
+model GymSettings {
+  id                       String   @id @default("singleton")
+  gymName                  String   @default("Mi Gimnasio")
+  gymAddress               String?
+  gymPhone                 String?
+  gymEmail                 String?
+  gymWebsite               String?
+  gymLogoUrl               String?
+  timezone                 String   @default("America/Argentina/Buenos_Aires")
+  currency                 String   @default("ARS")
+  currencySymbol           String   @default("$")
+  locale                   String   @default("es-AR")
+  dateFormat               String   @default("DD/MM/YYYY")
+  defaultPlanDurationDays  Int      @default(30)
+  gracePeriodDays          Int      @default(5)
+  maxActiveMemberships     Int?
+  defaultPaymentMethod     String   @default("CASH")
+  paymentReminderDaysBefore Int     @default(3)
+  enableAutoReminders      Boolean  @default(true)
+  allowMultipleCheckinsPerDay Boolean @default(false)
+  checkoutReminderHours    Int      @default(8)
+  notificationChannels     String[] @default(["IN_APP"])
+  openingTime              String?
+  closingTime              String?
+  openDays                 String[] @default(["MON", "TUE", "WED", "THU", "FRI", "SAT"])
+  primaryColor             String   @default("#3b82f6")
+  accentColor              String   @default("#1d4ed8")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("gym_settings")
+}
+
 model Equipment {
   id          String            @id @default(cuid())
   name        String            @unique
@@ -183,17 +219,17 @@ enum EquipmentCategory {
 }
 
 model Exercise {
-  id               String               @id @default(cuid())
-  name             String               @unique
+  id               String             @id @default(cuid())
+  name             String             @unique
   description      String?
   muscleGroup      MuscleGroup
   equipmentId      String?
-  usesWeight       Boolean              @default(false)
-  weightUnit       WeightUnit           @default(KG)
-  active           Boolean              @default(true)
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-  equipment        Equipment?           @relation(fields: [equipmentId], references: [id])
+  usesWeight       Boolean            @default(false)
+  weightUnit       WeightUnit         @default(KG)
+  active           Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  equipment        Equipment?         @relation(fields: [equipmentId], references: [id])
   routineExercises RoutineExercise[]
   sessionLogs      SessionExerciseLog[]
 
@@ -219,14 +255,14 @@ enum WeightUnit {
 }
 
 model Routine {
-  id            String            @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String
   description   String?
   objective     String?
   durationWeeks Int?
-  active        Boolean           @default(true)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  active        Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   exercises     RoutineExercise[]
   assignments   MemberRoutine[]
 
@@ -249,18 +285,18 @@ model RoutineExercise {
 }
 
 model MemberRoutine {
-  id         String            @id @default(cuid())
+  id         String          @id @default(cuid())
   memberId   String
   routineId  String
-  assignedAt DateTime          @default(now())
+  assignedAt DateTime        @default(now())
   startsAt   DateTime
   endsAt     DateTime?
-  active     Boolean           @default(true)
+  active     Boolean         @default(true)
   notes      String?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  member     Member            @relation(fields: [memberId], references: [id])
-  routine    Routine           @relation(fields: [routineId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  member     Member          @relation(fields: [memberId], references: [id])
+  routine    Routine         @relation(fields: [routineId], references: [id])
   sessions   TrainingSession[]
 
   @@map("member_routines")
@@ -282,15 +318,15 @@ model TrainingSession {
 }
 
 model SessionExerciseLog {
-  id         String          @id @default(cuid())
+  id         String     @id @default(cuid())
   sessionId  String
   exerciseId String
   setNumber  Int
   reps       Int?
   weight     Float?
-  weightUnit WeightUnit      @default(KG)
+  weightUnit WeightUnit @default(KG)
   notes      String?
-  createdAt  DateTime        @default(now())
+  createdAt  DateTime   @default(now())
   session    TrainingSession @relation(fields: [sessionId], references: [id])
   exercise   Exercise        @relation(fields: [exerciseId], references: [id])
 
