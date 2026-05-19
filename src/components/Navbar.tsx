@@ -10,6 +10,7 @@ const navLinks = [
   { href: '/payments', label: 'Pagos', icon: CreditCard },
   { href: '/attendance', label: 'Asistencia', icon: Calendar },
   { href: '/notifications', label: 'Notificaciones', icon: Bell },
+    { href: '/routines', label: 'Rutinas', icon: Dumbbell },
   { href: '/settings', label: 'Configuración', icon: Settings },
 ]
 
