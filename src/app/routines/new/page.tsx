@@ -1,4 +1,5 @@
 'use client';
+// Página para crear nuevas rutinas de entrenamiento
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
