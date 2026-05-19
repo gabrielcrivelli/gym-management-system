@@ -1,0 +1,29 @@
+name: Migrate DB and Seed
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: 'postgresql://neondb_owner:npg_2ZDQhH6RkMnC@ep-dawn-base-acc2p1re-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+      DIRECT_URL: 'postgresql://neondb_owner:npg_2ZDQhH6RkMnC@ep-dawn-base-acc2p1re.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Push schema to Neon (create/sync tables)
+        run: npx prisma db push --accept-data-loss
+
+      - name: Run seed (admin user + default plans)
+        run: npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
