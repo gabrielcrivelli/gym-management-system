@@ -1,35 +1,84 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Save } from 'lucide-react'
 
 export default function NewMemberPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: '', phone: ''
+  })
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al guardar')
+      }
+      router.push('/members')
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <main className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Nuevo Miembro</h1>
-        <Card className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Nombre</Label>
-              <Input placeholder="Juan" />
+        <div className="flex items-center gap-4 mb-6">
+          <button onClick={() => router.push('/members')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 transition">
+            <ArrowLeft className="w-4 h-4" /> Volver
+          </button>
+          <h1 className="text-2xl font-bold text-gray-900">Nuevo Miembro</h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+          {error && <p className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+              <input name="firstName" required value={form.firstName} onChange={handleChange} placeholder="Juan" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
-            <div className="space-y-2">
-              <Label>Apellido</Label>
-              <Input placeholder="Pérez" />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Apellido *</label>
+              <input name="lastName" required value={form.lastName} onChange={handleChange} placeholder="Pérez" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input type="email" placeholder="juan@email.com" />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+            <input name="email" type="email" required value={form.email} onChange={handleChange} placeholder="juan@email.com" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
-          <div className="space-y-2">
-            <Label>Teléfono</Label>
-            <Input placeholder="+54 11 1234-5678" />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input name="phone" value={form.phone} onChange={handleChange} placeholder="+54 11 1234-5678" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
-          <Button className="w-full">Guardar miembro</Button>
-        </Card>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={() => router.push('/members')} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Cancelar</button>
+            <button type="submit" disabled={loading} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition">
+              <Save className="w-4 h-4" />{loading ? 'Guardando...' : 'Guardar miembro'}
+            </button>
+          </div>
+        </form>
       </div>
-    </main>
+    </div>
   )
 }
