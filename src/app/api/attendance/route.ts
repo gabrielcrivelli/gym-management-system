@@ -5,6 +5,7 @@ export async function GET() {
   try {
     const records = await db.attendance.findMany({
       orderBy: { checkIn: 'desc' },
+        include: { member: true },
     })
     return NextResponse.json(records)
   } catch {
