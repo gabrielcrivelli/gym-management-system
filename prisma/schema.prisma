@@ -3,19 +3,20 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  role      Role     @default(STAFF)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  password    String
+  role        Role         @default(STAFF)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
 
   @@map("users")
 }
@@ -25,12 +26,27 @@ enum Role {
   STAFF
 }
 
-model Plan {
+model Member {
   id          String       @id @default(cuid())
   name        String
+  email       String?      @unique
+  phone       String?
+  address     String?
+  birthDate   DateTime?
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
+
+  @@map("members")
+}
+
+model Plan {
+  id          String       @id @default(cuid())
+  name        String       @unique
   description String?
   price       Float
-  duration    Int          // days
+  duration    Int
   active      Boolean      @default(true)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -39,30 +55,11 @@ model Plan {
   @@map("plans")
 }
 
-model Member {
-  id          String       @id @default(cuid())
-  firstName   String
-  lastName    String
-  email       String?      @unique
-  phone       String?
-  dni         String?      @unique
-  birthDate   DateTime?
-  address     String?
-  active      Boolean      @default(true)
-  notes       String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  memberships Membership[]
-  attendances Attendance[]
-  payments    Payment[]
-
-  @@map("members")
-}
-
 model Membership {
   id        String           @id @default(cuid())
   memberId  String
   planId    String
+  userId    String
   startDate DateTime
   endDate   DateTime
   status    MembershipStatus @default(ACTIVE)
@@ -70,7 +67,7 @@ model Membership {
   updatedAt DateTime         @updatedAt
   member    Member           @relation(fields: [memberId], references: [id])
   plan      Plan             @relation(fields: [planId], references: [id])
-  payments  Payment[]
+  user      User             @relation(fields: [userId], references: [id])
 
   @@map("memberships")
 }
@@ -78,34 +75,18 @@ model Membership {
 enum MembershipStatus {
   ACTIVE
   EXPIRED
-  SUSPENDED
   CANCELLED
-}
-
-model Attendance {
-  id        String   @id @default(cuid())
-  memberId  String
-  checkIn   DateTime @default(now())
-  checkOut  DateTime?
-  notes     String?
-  member    Member   @relation(fields: [memberId], references: [id])
-
-  @@map("attendances")
 }
 
 model Payment {
   id           String        @id @default(cuid())
-  memberId     String
   membershipId String?
   amount       Float
   method       PaymentMethod @default(CASH)
   status       PaymentStatus @default(PENDING)
   paidAt       DateTime?
-  notes        String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  member       Member        @relation(fields: [memberId], references: [id])
-  membership   Membership?   @relation(fields: [membershipId], references: [id])
 
   @@map("payments")
 }
@@ -114,33 +95,10 @@ enum PaymentMethod {
   CASH
   CARD
   TRANSFER
-  OTHER
 }
 
 enum PaymentStatus {
   PENDING
-  COMPLETED
-  CANCELLED
+  PAID
   REFUNDED
-}
-
-model NotificationLog {
-  id        String   @id @default(cuid())
-  type      String
-  channel   String
-  recipient String
-  message   String
-  status    String   @default("sent")
-  sentAt    DateTime @default(now())
-
-  @@map("notification_logs")
-}
-
-model Config {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  value     String
-  updatedAt DateTime @updatedAt
-
-  @@map("configs")
 }
