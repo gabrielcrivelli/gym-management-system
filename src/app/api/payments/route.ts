@@ -4,7 +4,6 @@ import { db } from '@/lib/db'
 export async function GET() {
   try {
     const payments = await db.payment.findMany({
-      include: { member: true, membership: true },
       orderBy: { createdAt: 'desc' },
     })
     return NextResponse.json(payments)
@@ -18,7 +17,7 @@ export async function POST(req: Request) {
     const body = await req.json()
     const payment = await db.payment.create({ data: body })
     return NextResponse.json(payment, { status: 201 })
-  } catch {
-    return NextResponse.json({ error: 'Error creating payment' }, { status: 500 })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Error creating payment' }, { status: 500 })
   }
 }
