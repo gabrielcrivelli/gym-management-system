@@ -37,6 +37,7 @@ model Member {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   memberships Membership[]
+  attendance Attendance[]
 
   @@map("members")
 }
@@ -101,4 +102,15 @@ enum PaymentStatus {
   PENDING
   PAID
   REFUNDED
+}
+
+
+model Attendance {
+  id        String   @id @default(cuid())
+  memberId  String
+  checkIn   DateTime @default(now())
+  checkOut  DateTime?
+  member    Member   @relation(fields: [memberId], references: [id])
+
+  @@map("attendance")
 }
