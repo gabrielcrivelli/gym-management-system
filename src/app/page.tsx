@@ -12,6 +12,7 @@ export default async function HomePage() {
     { href: '/members', label: 'Miembros', icon: Users, color: 'bg-blue-500' },
     { href: '/payments', label: 'Pagos', icon: CreditCard, color: 'bg-green-500' },
     { href: '/attendance', label: 'Asistencia', icon: Calendar, color: 'bg-purple-500' },
+        { href: '/routines', label: 'Rutinas', icon: Dumbbell, color: 'bg-orange-500' },
     { href: '/notifications', label: 'Notificaciones', icon: Bell, color: 'bg-yellow-500' },
     { href: '/settings', label: 'Configuración', icon: Settings, color: 'bg-gray-500' },
   ]
