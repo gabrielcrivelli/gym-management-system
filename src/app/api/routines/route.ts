@@ -25,13 +25,6 @@ try {
     const body = await req.json()
     const { name, description, difficulty, duration, isActive, exercises, memberId } = body
 
-    // Validar que memberId esté presente
-    if (!memberId) {
-      return NextResponse.json(
-        { error: 'El campo memberId es obligatorio. Debe asignar la rutina a un miembro.' },
-        { status: 400 }
-      )
-    }
 
     // Crear rutina, ejercicios y asignación en una transacción
     const result = await db.$transaction(async (tx) => {
@@ -62,6 +55,7 @@ try {
         })
       }
 
+      if (memberId) {
       // 3. Asignar rutina al miembro
       await tx.memberRoutine.create({
         data: {
@@ -69,6 +63,7 @@ try {
           routineId: routine.id,
         }
       })
+      }
 
       // Retornar la rutina con sus ejercicios
       return await tx.routine.findUnique({
