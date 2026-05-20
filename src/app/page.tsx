@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
-import { Users, CreditCard, Calendar, Bell, Settings, BarChart3 } from 'lucide-react'
+import { Users, CreditCard, Calendar, Bell, Settings, BarChart3, Dumbbell } from 'lucide-react'
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions)
