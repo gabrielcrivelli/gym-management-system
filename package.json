@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "npx prisma generate && npx prisma db push --force-reset --accept-data-loss && next build",
-    "db:push": "prisma db push",
+    "build": "npx prisma generate && npx prisma db push --force-reset --accept-data-loss && next build",    "db:push": "prisma db push",
     "db:seed": "ts-node prisma/seed.ts",
     "db:studio": "prisma studio"
   },
