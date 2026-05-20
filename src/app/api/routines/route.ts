@@ -21,7 +21,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  trconst body = await req.json()
+try {
+    const body = await req.json()
     const { name, description, difficulty, duration, isActive, exercises, memberId } = body
 
     // Validar que memberId esté presente
