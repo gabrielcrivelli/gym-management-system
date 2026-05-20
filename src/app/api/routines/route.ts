@@ -21,11 +21,78 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json()
-    const routine = await db.routine.create({ data: body })
-    return NextResponse.json(routine, { status: 201 })
+  trconst body = await req.json()
+    const { name, description, difficulty, duration, isActive, exercises, memberId } = body
+
+    // Validar que memberId esté presente
+    if (!memberId) {
+      return NextResponse.json(
+        { error: 'El campo memberId es obligatorio. Debe asignar la rutina a un miembro.' },
+        { status: 400 }
+      )
+    }
+
+    // Crear rutina, ejercicios y asignación en una transacción
+    const result = await db.$transaction(async (tx) => {
+      // 1. Crear la rutina
+      const routine = await tx.routine.create({
+        data: {
+          name,
+          description: description || null,
+          difficulty: difficulty || 'INTERMEDIATE',
+          duration: duration || 60,
+          isActive: isActive !== undefined ? isActive : true,
+        }
+      })
+
+      // 2. Agregar ejercicios a la rutina si existen
+      if (exercises && Array.isArray(exercises) && exercises.length > 0) {
+        const routineExercises = exercises.map((ex: any) => ({
+          routineId: routine.id,
+          exerciseId: ex.exerciseId || ex.id,
+          sets: ex.sets || 3,
+          reps: ex.reps || 10,
+          restSeconds: ex.restSeconds || 60,
+          notes: ex.notes || null,
+        }))
+
+        await tx.routineExercise.createMany({
+          data: routineExercises
+        })
+      }
+
+      // 3. Asignar rutina al miembro
+      await tx.memberRoutine.create({
+        data: {
+          memberId,
+          routineId: routine.id,
+        }
+      })
+
+      // Retornar la rutina con sus ejercicios
+      return await tx.routine.findUnique({
+        where: { id: routine.id },
+        include: {
+          exercises: {
+            include: {
+              exercise: true
+            }
+          },
+          assignments: {
+            include: {
+              member: true
+            }
+          }
+        }
+      })
+    })
+
+    return NextResponse.json(result, { status: 201 })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error creating routine:', error)
+    return NextResponse.json(
+      { error: 'Error al crear la rutina: ' + error.message },
+      { status: 500 }
+    )
   }
 }
