@@ -33,9 +33,7 @@ try {
         data: {
           name,
           description: description || null,
-          difficulty: difficulty || 'INTERMEDIATE',
-          duration: duration || 60,
-          isActive: isActive !== undefined ? isActive : true,
+          active: isActive !== undefined ? isActive : true,
         }
       })
 
