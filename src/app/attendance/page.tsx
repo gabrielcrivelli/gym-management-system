@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, UserCheck, CheckCircle, Clock } from 'lucide-react'
+import { ArrowLeft, UserCheck, CheckCircle, Clock, LogOut } from 'lucide-react'
 
 interface AttendanceRecord {
   id: string
@@ -58,6 +58,20 @@ export default function AttendancePage() {
     finally { setSaving(false) }
   }
 
+  async function registerCheckOut(attendanceId: string) {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/attendance/${attendanceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ checkOut: new Date().toISOString() })
+      })
+      if (!res.ok) throw new Error('Error al registrar salida')
+      fetchData()
+    } catch (e: any) { alert(e.message) }
+    finally { setSaving(false) }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto">
@@ -95,11 +109,11 @@ export default function AttendancePage() {
         <div className="grid gap-3">
           {records.map(r => (
             <div key={r.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-1">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                   {r.checkOut ? <CheckCircle className="w-5 h-5 text-green-600" /> : <Clock className="w-5 h-5 text-blue-600" />}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="font-semibold text-gray-900">{r.member?.name ?? r.memberId}</p>
                   <div className="flex items-center gap-4 mt-1">
                     <span className="text-xs text-gray-500">Entrada: {new Date(r.checkIn).toLocaleString('es-AR')}</span>
@@ -107,9 +121,20 @@ export default function AttendancePage() {
                   </div>
                 </div>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.checkOut ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                {r.checkOut ? 'Completado' : 'En curso'}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.checkOut ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                  {r.checkOut ? 'Completado' : 'En curso'}
+                </span>
+                {!r.checkOut && (
+                  <button
+                    onClick={() => registerCheckOut(r.id)}
+                    disabled={saving}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-medium hover:bg-orange-700 disabled:opacity-50 transition"
+                  >
+                    <LogOut className="w-3 h-3" />Registrar salida
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
