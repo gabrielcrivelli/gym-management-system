@@ -260,7 +260,7 @@ model Routine {
   description   String?
   objective     String?
   durationWeeks Int?
-  active        Boolean         @default(true) @map("isActive")
+  active        Boolean         @default(true) 
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   exercises     RoutineExercise[]
